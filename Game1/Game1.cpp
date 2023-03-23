@@ -3,38 +3,16 @@
 
 using namespace std;
 
+char** create_board(int SIZEX, int SIZEY);
+char* character_array();
+void print_board(char** board, int SIZEX, int SIZEY, char* simvol);
+int ask_user(char** board, int SIZEX, int SIZEY, char* simvol);
+void validate_user_input_object(int row, int col, char** board, int SIZEX, int SIZEY, char* simvol);
+void validate_user_input_move(int answer_user, char** board, int SIZEX, int SIZEY, char simvol);
+void change_cells(int SIZEX, int SIZEY, int answer_user, int row, int col);
 
 /*
-int validate()
-{
-    int number;
-    while (true)
-    {
-        cin >> number;
-        if (number < 0)
-        {
-            cout << "valide" << endl;
-            return number;
-        }
-        else
-        {
-            cout << "invalide" << endl;
-        }
-    }
-}
-
-
-void change_cells()
-{
-
-}
-
-void check_sequences()
-{
-
-}
-
-void replace_sequences()
+void calculate_points()
 {
 
 }
@@ -44,80 +22,101 @@ void break_sequences()
 
 }
 
-void calculate_points()
+void replace_sequences()
+{
+
+}
+
+void check_sequences()
 {
 
 }*/
 
-/*void peremeshenie(char ** board, int sizeX, int sizeY)
+void change_cells(int SIZEX, int SIZEY, int answer_user, int row, int col)
 {
-    int nomi = 0;
-    int nomj = 0;
     int up = 1;
     int down = 2;
     int left = 3;
     int right = 4;
-    int otvet_polz = 0;
-    cout << "Объект, который хотим переместить" << endl;
-    cout << "Номер по горизонтали: ";
-    cin >> nomi;
-    cout << "Номер по вертикали: ";
-    cin >> nomj;
-    cout << "В какую сторону двигаем? Цифра:" << endl << "1. вверх" << endl << "2. вниз" << endl << "3. влево" <<  endl << "4. вправо" << endl;
-    cin >> otvet_polz;
 
 
-    while(true)
-    {
-        if(otvet_polz == 0 || otvet_polz > 4)
-        {
-            system("cls");
-            playing_field(board, sizeX, sizeY);
-            peremeshenie(board, sizeX, sizeY);
-        }
-        break;
-    }
 
     int tmp;
-    int smena[0][0];
-    if(otvet_polz == up)
+    int smena[SIZEX][SIZEY];
+    int motvet[SIZEX][SIZEY];
+    if (answer_user == up)
     {
-        tmp = smena[nomi][nomj];
-        smena[nomi][nomj] = motvet[nomi][nomj - 1];
-        smena[nomi][nomj - 1] = tmp;
+        tmp = smena[row][col];
+        smena[row][col] = motvet[row][col - 1];
+        smena[row][col - 1] = tmp;
     }
-    else if(otvet_polz == down)
+    else if (answer_user == down)
     {
-        motvet[nomi][nomj] = motvet[nomi][nomj + 1];
+        motvet[row][col] = motvet[row][col + 1];
     }
-    else if(otvet_polz == left)
+    else if (answer_user == left)
     {
-        motvet[nomi][nomj] = motvet[nomi - 1][nomj];
+        motvet[row][col] = motvet[row - 1][col];
     }
-    else //if(otvet_polz == right)
+    else //if((answer_user == right)
     {
+        motvet[row][col] = motvet[row + 1][col];
+    }
+}
 
-        motvet[nomi][nomj] = motvet[nomi + 1][nomj];
-    }
-
-
-}*/
-/*
-void validate_user_input()
+void validate_user_input_move(int answer_user, char** board, int SIZEX, int SIZEY, char* simvol)
 {
-    while(true)
+    if (answer_user == 0 && answer_user > 4)
     {
-
+        cout << "invalid" << endl;
+        system("cls");
+        print_board(board, SIZEX, SIZEY, simvol);
+        ask_user(SIZEX, SIZEY);
+    }
+    else
+    {
+        cout << "Good job!" << endl;
     }
 
 }
 
-void ask_user()
+void validate_user_input_object(int row, int col, char** board, int SIZEX, int SIZEY, char* simvol)
 {
-    int number_
-}*/
+    if (row > SIZEX && col > SIZEY)
+    {
+        cout << "invalid" << endl;
+        system("cls");
+        print_board(board, SIZEX, SIZEY, simvol);
+        ask_user(SIZEX, SIZEY);
+    }
+    else
+    {
+        cout << "Nice!" << endl;
+    }
+}
 
-void print_board(char** board, int sizeX, int sizeY, char* simvol)
+int ask_user(char ** board, int SIZEX, int SIZEY, char* simvol)
+{
+    int row = 0;
+    int col = 0;
+    cout << "The object we want to move" << endl;
+    cout << "Horizontal number: ";
+    cin >> row;
+    cout << "Vertical number: ";
+    cin >> col;
+
+    validate_user_input_object(row, col, SIZEX, SIZEY, board, simvol);
+
+    int answer_user = 0;
+    cout << "In which direction are we moving? Number:" << endl << "1. up" << endl << "2. down" << endl << "3. left" << endl << "4. right" << endl;
+    cin >> answer_user;
+
+    validate_user_input_move(answer_user, board, SIZEX, SIZEY, simvol);
+
+    return answer_user;
+}
+
+void print_board(char** board, int SIZEX, int SIZEY, char* simvol)
 {
     int array_numbering[5] = { 1, 2, 3, 4, 5 };
 
@@ -128,11 +127,11 @@ void print_board(char** board, int sizeX, int sizeY, char* simvol)
     }
     cout << endl;
 
-    char s[sizeX];
-    for (int i = 0; i < sizeX; i++)
+    char s[SIZEX];
+    for (int i = 0; i <SIZEX; i++)
     {
         cout << i + 1 << ".";
-        for (int j = 0; j < sizeY; j++)
+        for (int j = 0; j < SIZEY; j++)
         {
             s[i] = rand() % (4 - 0 + 1) + (0);
             board[i][j] = s[i];
@@ -153,13 +152,13 @@ char* character_array()
     return simvol;
 }
 
-char** create_board(int sizeX, int sizeY)
+char** create_board(int SIZEX, int SIZEY)
 {
-    char** board = new char* [sizeX];
+    char** board = new char* [SIZEX];
 
-    for (int i = 0; i < sizeX; i++)
+    for (int i = 0; i < SIZEX; i++)
     {
-        board[i] = new char[sizeY];
+        board[i] = new char[SIZEY];
     }
 
     return board;
@@ -167,11 +166,14 @@ char** create_board(int sizeX, int sizeY)
 
 int main()
 {
-    const int sizeX = 5;
-    const int sizeY = 5;
-    char** board = create_board(sizeX, sizeY);
+    const int SIZEX = 5;
+    const int SIZEY = 5;
+    char** board = create_board(SIZEX, SIZEY);
     char* simvol = character_array();
-    print_board(board, sizeX, sizeY, simvol);
+    print_board(board, SIZEX, SIZEY, simvol);
+    ask_user(SIZEX, SIZEY);
+    validate_user_input_object(answer_user);
+    change_cells(SIZEX, SIZEY, answer_user, row, col);
 
     return 0;
 }
