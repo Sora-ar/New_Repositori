@@ -160,7 +160,7 @@ char** create_board(int SIZEX, int SIZEY)
     {
         board[i] = new char[SIZEY];
     }
-    // comment
+    // comment comment
 
     return board;
 }
