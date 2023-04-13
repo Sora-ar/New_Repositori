@@ -16,7 +16,7 @@ char ** fill_board(char** board)
         for (int j = 0; j < SIZEY; j++)
         {
             board[i][j] = rand() % (5 - 1 + 1) + (1);
-        }
+        } 
     }
 
     return board;
