@@ -17,7 +17,7 @@ char ** fill_board(char** board)
         {
             board[i][j] = rand() % (5 - 1 + 1) + (1);
         } 
-    }
+    } 
 
     return board;
 }
