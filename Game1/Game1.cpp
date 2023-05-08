@@ -23,12 +23,12 @@ char ** fill_board(char** board)
         {
             board[i][j] = rand() % (5 - 1 + 1) + (1);
         } 
-    } // comm
+    }
 
     return board;
 }
 
-void print_board(char** board) //char* simvol
+void print_board(char** board)
 {
     const int number_of_ids = 5;
     int upper_ids[number_of_ids] = { 0, 1, 2, 3, 4 };
@@ -100,18 +100,143 @@ char** remove_items(char**& board)
     return board;
 }
 
-int check_sequences_and_remove(char**& board, ask_about_move_object obj)
+int check_sequences_and_remove(char**& board, ask_about_move_object obj, int direction)
 {
     int all_matches = 0;
     bool found_match = true;
-    int counter = 0;
     int iacheika;
+    int counter;
+    int k;
+    int additional_row;
+
+    if (direction == 1 || direction == 2)
+    {
+        additional_row = direction == 1 ? obj.r - 1 : obj.r;
+
+        for (int i = additional_row; i <= additional_row + 1; i++)
+        {
+            counter = 0;
+
+            k = obj.c - 2 > 0 ? obj.c - 2 : 0; 
+            for (int j = k; j <= obj.c + 2 && j < SIZEY; j++)
+            {
+                iacheika = board[i][j];
+                if (iacheika == board[i][obj.c])
+                {
+                    counter++;
+                    if (counter == 3)
+                    {
+                        for (; k <= k + 2; k++)
+                        {
+                            board[i][k] = 0;
+                        }
+                        break;
+                    }
+                }
+                else
+                {
+                    counter = 0;
+                    k = j + 1;
+                }
+            }
+
+        }
+
+        int start_row = additional_row - 2 > 0 ? additional_row - 2 : 0;
+        k = start_row;
+        char current_symbol = board[start_row][obj.c];
+        for (int i = start_row; i <= additional_row + 3 && i < SIZEX; i++)
+        {
+            iacheika = board[i][obj.c];
+            if (iacheika == current_symbol)
+            {
+                counter++;
+                if (counter == 3)
+                {
+                    for (; k <= k + 2; k++)
+                    {
+                        board[k][obj.c] = 0;
+                    }
+                }
+            }
+            else
+            {
+                current_symbol = iacheika;
+                counter = 0;
+                k = i + 1;
+            }
+        }
+    }
+   
+    if (direction == 3 || direction == 4)
+    {
+        additional_row = direction == 3 ? obj.c - 1 : obj.c;
+
+        for (int j = additional_row; j <= additional_row + 1; j++)
+        {
+            counter = 0;
+
+            k = obj.r - 2 > 0 ? obj.r - 2 : 0;
+            for (int i = k; i <= obj.r + 2 && i < SIZEY; i++)
+            {
+                iacheika = board[i][j];
+                if (iacheika == board[obj.r][j])
+                {
+                    counter++;
+                    if (counter == 3)
+                    {
+                        for (; k <= k + 2; k++)
+                        {
+                            board[k][j] = 0;
+                        }
+                        break;
+                    }
+                }
+                else
+                {
+                    counter = 0;
+                    k = i + 1;
+                }
+            }
+
+        }
+
+        int start_row = additional_row - 2 > 0 ? additional_row - 2 : 0;
+        k = start_row;
+        char current_symbol = board[obj.r][start_row];
+        for (int j = start_row; j <= additional_row + 3 && j < SIZEY; j++)
+        {
+            iacheika = board[i][obj.c];
+            if (iacheika == current_symbol)
+            {
+                counter++;
+                if (counter == 3)
+                {
+                    for (; k <= k + 2; k++)
+                    {
+                        board[obj.r][k] = 0;
+                    }
+                }
+            }
+            else
+            {
+                current_symbol = iacheika;
+                counter = 0;
+                k = j + 1;
+            }
+        }
+    }
+
+
+
+
+
     while (found_match)
     {
         found_match = false;
         //if (directions == 1)
         {
-            for (int i = 0; i < SIZEX; i++)
+            for (int i = 0; i < SIZEX ; i++)
             {
                 for (int j = 0; j < SIZEY - 2; j++)
                 {
@@ -430,8 +555,7 @@ int main()
         answer_user = ask_user(obj, answer_user, board);
         change_cells(answer_user, obj, board);
         system("cls");
-        all_matches = check_sequences_and_remove(board, obj);
-        //board = remove_items(board);
+        all_matches = check_sequences_and_remove(board, obj, answer_user);
         combo_matches = delete_and_count_combo(board, obj, all_matches);
         calculate_points(combo_matches);
     }
