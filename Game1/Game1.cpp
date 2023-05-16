@@ -2,6 +2,10 @@
 #include <iomanip>
 #include <vector>
 #include <chrono>
+#include "BoardHandler.h"
+
+
+
 
 using namespace std;
 using namespace std::chrono;
@@ -13,44 +17,7 @@ const int MAX_ITERATIONS = 15;
 struct for_ask_user { int au = 0; };
 struct ask_about_move_object { int r = 0; int c = 0; };
 
-
-///////////////////////////////////////////////// BoardHandler
-char ** fill_board(char** board)
-{
-    for (int i = 0; i < SIZEX; i++)
-    {
-        for (int j = 0; j < SIZEY; j++)
-        {
-            board[i][j] = rand() % (5 - 1 + 1) + (1);
-        } 
-    }
-
-    return board;
-}
-///////////////////////////////////////////////// BoardHandler
-void print_board(char** board)
-{
-    const int number_of_ids = 5;
-    int upper_ids[number_of_ids] = { 0, 1, 2, 3, 4 };
-
-    cout << "     ";
-    for (int i = 0; i < number_of_ids; i++)
-    {
-        cout << upper_ids[i] << "   ";
-    }
-    cout << endl;
-
-    for (int i = 0; i < SIZEX; i++)
-    {
-        cout << i << ".";
-        for (int j = 0; j < SIZEY; j++)
-        {
-            cout << setw(4) << board[i][j];
-        }
-        cout << endl;
-    }
-}
-
+///////////////////////////////////////////////// UserCommunicator
 void print_final_massage(const std::chrono::high_resolution_clock::time_point& start, int number_of_moves)
 {
     auto stop = high_resolution_clock::now();
@@ -303,7 +270,7 @@ vector<int> move(ask_about_move_object& obj)
 }
 
 ///////////////////////////////////////////////// Validator
-int validate_user_input_move(char** board, ask_about_move_object& obj)
+int validate_user_input_move(BoardHandler* bordH, ask_about_move_object& obj)
 {
     vector<int> directions = move(obj);
     bool prov = false;
@@ -325,7 +292,7 @@ int validate_user_input_move(char** board, ask_about_move_object& obj)
         {
             cout << "invalid" << endl;
         }
-        print_board(board);
+        bordH->print_board();
         prov_cout = true;
     }
 
@@ -333,7 +300,7 @@ int validate_user_input_move(char** board, ask_about_move_object& obj)
 }
 
 ///////////////////////////////////////////////// Validator
-void validate_user_input_object(ask_about_move_object& obj, char** board)
+void validate_user_input_object(ask_about_move_object& obj, BoardHandler* bordH)
 {
     bool prov = false;
     obj = { -1, -1 };
@@ -343,7 +310,7 @@ void validate_user_input_object(ask_about_move_object& obj, char** board)
         {
             cout << "invalid" << endl;
             system("cls");
-            print_board(board);
+            bordH->print_board();
         }
         fill_object(obj);
         prov = true;
@@ -351,10 +318,10 @@ void validate_user_input_object(ask_about_move_object& obj, char** board)
 }
 
 ///////////////////////////////////////////////// GameHandler
-int ask_user(ask_about_move_object& obj, int answer_user, char** board)
+int ask_user(ask_about_move_object& obj, int answer_user, BoardHandler* bordH)
 {
-    validate_user_input_object(obj, board);
-    return validate_user_input_move(board, obj);
+    validate_user_input_object(obj, bordH);
+    return validate_user_input_move(bordH, obj);
 }
 
 ///////////////////////////////////////////////// GameHandler
@@ -392,6 +359,7 @@ void change_cells(int answer_user, ask_about_move_object obj, char** board)
     }
 }
 
+///////////////////////////////////////////////// MatcheHandler
 
 void break_match(char** board)
 {
@@ -427,38 +395,27 @@ void break_match(char** board)
     }
 }
 
-///////////////////////////////////////////////// BoardHandler
-char** create_board()
-{
-    char** board = new char* [SIZEX];
-
-    for (int i = 0; i < SIZEX; i++)
-    {
-        board[i] = new char[SIZEY];
-    }
-    return board;
-}
-
 int main()
 {
     //srand(time(NULL));
-    char** board = create_board();
+    BoardHandler* bordH = new BoardHandler();
+    bordH->create_board();
     int answer_user = 0;
     int combo_matches = 0;
     int all_matches = 0;
     int number_of_moves = 0;
     ask_about_move_object obj;
 
-    board = fill_board(board);
-
+    bordH->fill_board();
+    char ** board = bordH->getBoard();
     break_match(board);
 
     bool game_over = false;
     auto start = high_resolution_clock::now();
     while (!game_over)
     {
-        print_board(board);
-        answer_user = ask_user(obj, answer_user, board);
+        bordH->print_board();
+        answer_user = ask_user(obj, answer_user, bordH);
         number_of_moves++;
         change_cells(answer_user, obj, board);
         system("cls");
