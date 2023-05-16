@@ -1,20 +1,20 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 const int SIZEX = 5;
 const int SIZEY = 5;
-const int MAX_ITERATIONS = 50;
+const int MAX_ITERATIONS = 15;
 
 struct for_ask_user { int au = 0; };
 struct ask_about_move_object { int r = 0; int c = 0; };
 
-void change_cells(int answer_user, ask_about_move_object obj, char** board);
-void validate_move(ask_about_move_object& obj, char** board, int row_1, int col_1, int row_2, int col_2, int answer_user);
 
-
+///////////////////////////////////////////////// BoardHandler
 char ** fill_board(char** board)
 {
     for (int i = 0; i < SIZEX; i++)
@@ -27,7 +27,7 @@ char ** fill_board(char** board)
 
     return board;
 }
-
+///////////////////////////////////////////////// BoardHandler
 void print_board(char** board)
 {
     const int number_of_ids = 5;
@@ -51,64 +51,73 @@ void print_board(char** board)
     }
 }
 
-void calculate_points(int combo_matches)
+void print_final_massage(const std::chrono::high_resolution_clock::time_point& start, int number_of_moves)
 {
-    int points = 10;
-    int combo_points = 50;
-    int combo_p = 0;
-    int point_p = 0; 
-    int max_combo = 0;
-
-    if (combo_matches == 1)
-    {
-        point_p += points;
-    }
-
-    combo_p = combo_points * combo_matches;
-
-    if (combo_matches > max_combo)
-    {
-        max_combo = combo_matches;
-    }
-
-    int score = combo_p + point_p;
-
-    cout << "Scrore: " << score << endl;
-    cout << "Max combo: " << max_combo << endl;
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
+    cout << "* * * * * * * * * * * * * *" << endl;
+    cout << "*                         *" << endl;
+    cout << "*       You win!!!        *" << endl;
+    cout << "*                         *" << endl;
+    cout << "* * * * * * * * * * * * * *" << endl;
     cout << endl;
+    cout << "Number of moves: " << number_of_moves << endl;
+    cout << "TIME: " << duration.count() / 60 << "min. " << duration.count() % 60 << "sec." << endl;
 }
 
+
+/////////////////GameManager
+bool check_win(int all_matches)
+{
+    if (all_matches == MAX_ITERATIONS)
+        return true;
+    return false;
+}
+
+///////////////////////////////////////////////// MatchHandler
 char** remove_items(char**& board)
 {
+    int count = 0;
     for (int j = 0; j < SIZEY; j++)
     {
-        int k = SIZEX - 1;
-        for (int i = SIZEX -1; i >= 0; i--) 
+        for (int i = SIZEX - 1; i > 0; i--) 
         {
             if (board[i][j] == 0)
-            {                
-                swap(board[k][j], board[k - 1][j]);
-                k--;
+            {   
+                if (board[i - 1][j] != 0)
+                {
+                    swap(board[i - 1][j], board[i + count][j]);
+                }
+                else
+                {
+                    count++;
+                }
             }
         }
-        for (int i = k; i >= 0; i--)
+        for (int i = 0; i < SIZEX; i++)
         {
-            board[i][j] = rand() % (5 - 1 + 1) + (1);
+            if (board[i][j] == 0)
+            {
+                board[i][j] = rand() % (5 - 1 + 1) + (1);
+            }
+            else
+            {
+                break;
+            }
         }
     }
 
     return board;
 }
 
-int check_sequences_and_remove(char**& board, ask_about_move_object obj, int direction)
+///////////////////////////////////////////////// MatchHandler
+int check_sequences(char**& board, ask_about_move_object obj, int direction, int all_matches)
 {
-    int all_matches = 0;
-    bool found_match = true;
     int iacheika;
     int counter;
     int k;
     int additional_row;
-
+    
     if (direction == 1 || direction == 2)
     {
         additional_row = direction == 1 ? obj.r - 1 : obj.r;
@@ -117,7 +126,7 @@ int check_sequences_and_remove(char**& board, ask_about_move_object obj, int dir
         {
             counter = 0;
 
-            k = obj.c - 2 > 0 ? obj.c - 2 : 0; 
+            k = obj.c - 2 > 0 ? obj.c - 2 : 0;
             for (int j = k; j <= obj.c + 2 && j < SIZEY; j++)
             {
                 iacheika = board[i][j];
@@ -126,9 +135,10 @@ int check_sequences_and_remove(char**& board, ask_about_move_object obj, int dir
                     counter++;
                     if (counter == 3)
                     {
-                        for (; k <= k + 2; k++)
+                        all_matches++;
+                        for (int l = k; l <= k + 2; l++)
                         {
-                            board[i][k] = 0;
+                            board[i][l] = 0;
                         }
                         break;
                     }
@@ -142,20 +152,21 @@ int check_sequences_and_remove(char**& board, ask_about_move_object obj, int dir
 
         }
 
-        int start_row = additional_row - 2 > 0 ? additional_row - 2 : 0;
-        k = start_row;
-        char current_symbol = board[start_row][obj.c];
-        for (int i = start_row; i <= additional_row + 3 && i < SIZEX; i++)
+        counter = 0;
+        k = additional_row - 2 > 0 ? additional_row - 2 : 0;
+        char current_symbol = board[k][obj.c];
+        for (int i = k + 1; i <= additional_row + 3 && i < SIZEX; i++)
         {
             iacheika = board[i][obj.c];
             if (iacheika == current_symbol)
             {
                 counter++;
-                if (counter == 3)
+                if (counter == 2)
                 {
-                    for (; k <= k + 2; k++)
+                    all_matches++;
+                    for (int l = k; l <= k + 2; l++)
                     {
-                        board[k][obj.c] = 0;
+                        board[l][obj.c] = 0;
                     }
                 }
             }
@@ -163,7 +174,7 @@ int check_sequences_and_remove(char**& board, ask_about_move_object obj, int dir
             {
                 current_symbol = iacheika;
                 counter = 0;
-                k = i + 1;
+                k = i;
             }
         }
     }
@@ -185,9 +196,10 @@ int check_sequences_and_remove(char**& board, ask_about_move_object obj, int dir
                     counter++;
                     if (counter == 3)
                     {
-                        for (; k <= k + 2; k++)
+                        all_matches++;
+                        for (int l = k; l <= k + 2; l++)
                         {
-                            board[k][j] = 0;
+                            board[l][j] = 0;
                         }
                         break;
                     }
@@ -201,20 +213,21 @@ int check_sequences_and_remove(char**& board, ask_about_move_object obj, int dir
 
         }
 
-        int start_row = additional_row - 2 > 0 ? additional_row - 2 : 0;
-        k = start_row;
-        char current_symbol = board[obj.r][start_row];
-        for (int j = start_row; j <= additional_row + 3 && j < SIZEY; j++)
+        counter = 0;
+        k = additional_row - 2 > 0 ? additional_row - 2 : 0;
+        char current_symbol = board[obj.r][k];
+        for (int j = k + 1; j <= additional_row + 3 && j < SIZEY; j++)
         {
-            iacheika = board[i][obj.c];
+            iacheika = board[obj.r][j];
             if (iacheika == current_symbol)
             {
                 counter++;
-                if (counter == 3)
+                if (counter == 2)
                 {
-                    for (; k <= k + 2; k++)
+                    all_matches++;
+                    for (int l = k; l <= k + 2; l++)
                     {
-                        board[obj.r][k] = 0;
+                        board[obj.r][l] = 0;
                     }
                 }
             }
@@ -222,161 +235,66 @@ int check_sequences_and_remove(char**& board, ask_about_move_object obj, int dir
             {
                 current_symbol = iacheika;
                 counter = 0;
-                k = j + 1;
+                k = j;
             }
         }
-    }
-
-
-
-
-
-    while (found_match)
-    {
-        found_match = false;
-        //if (directions == 1)
-        {
-            for (int i = 0; i < SIZEX ; i++)
-            {
-                for (int j = 0; j < SIZEY - 2; j++)
-                {
-                    iacheika = board[i][j];
-                    if (iacheika == board[i][j + 1])
-                    {
-                        counter++;
-                        if (counter == 3)
-                        {
-                            board[i][j], board[i][j - 1], board[i][j - 2] = 0;
-                            all_matches++;
-                            found_match = true;
-                        }
-                    }
-                    else
-                    {
-                        iacheika = board[i][j + 1];
-                    }
-                }
-            }
-        }
-
-        for (int i = 0; i < SIZEX - 2; i++)
-        {
-            for (int j = 0; j < SIZEY; j++)
-            {
-                iacheika = board[i][j];
-                if (iacheika == board[i + 1][j])
-                {
-                    counter++;
-                    if (counter == 3)
-                    {
-                        board[i][j], board[i - 1][j], board[i - 2][j] = 0;
-                        all_matches++;
-                        found_match = true;
-                    }
-                }
-                else
-                {
-                    iacheika = board[i + 1][j];
-                }
-            }
-        }
-
-        
-    }
-
-    
-    while (found_match)
-    {
-        found_match = false;
-
-        for (int i = 0; i <= obj.r; i++)
-        {
-            for (int j = 0; j <= obj.c - 2; j++)
-            {
-                if (board[i][j] != 0 && board[i][j] == board[i][j + 1] && board[i][j] == board[i][j + 2])
-                {
-                    int match_value = board[i][j];
-                    int k = j;
-                    while (k < obj.c && board[i][k] == match_value)
-                    {
-                        board[i][k] = 0;
-                        all_matches++;
-                        k++;
-                    }
-                    found_match = true;
-                }
-            }
-        }
-        
-        for (int j = 0; j <= obj.c; j++)
-        {
-            for (int i = 0; i <= obj.r - 2; i++)
-            {
-                if (board[i][j] != 0 && board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j])
-                {
-                    int match_value = board[i][j];
-                    int k = j;
-                    while (k < obj.r && board[k][j] == match_value)
-                    {
-                        board[k][j] = 0;
-                        all_matches++;
-                        k++;
-                    }
-                    found_match = true;
-                }
-            }
-        }
-        remove_items(board);
     }
 
     return all_matches;
 }
 
-int delete_and_count_combo(char** board, ask_about_move_object obj, int all_matches)
+///////////////////////////////////////////////// UserCommunicator
+int get_direction()
 {
-    int combo_matches = 0;
-
-    do {
-        all_matches = check_sequences_and_remove(board, obj);
-        combo_matches += all_matches;
-    } while (all_matches > 0);
-
-    return combo_matches;
-}
-
-int get_direction(int answer_user)
-{
+    int  answer_user;
     cout << "In which direction are we moving? Number:" << endl << "1. up" << endl << "2. down" << endl << "3. left" << endl << "4. right" << endl;
-    cin >> answer_user;
+    while (!(cin >> answer_user))
+    {
+        cout << "Incorrect input. Please try again.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
 
     return answer_user;
 }
 
+///////////////////////////////////////////////// UserCommunicator
 void fill_object(ask_about_move_object& obj)
 {
     cout << "The object we want to move" << endl;
     cout << "Horizontal number: ";
-    cin >> obj.r;
+    while (!(cin >> obj.r)) 
+    {
+        cout << "Incorrect input. Please try again.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
     cout << "Vertical number: ";
-    cin >> obj.c;
+    while (!(cin >> obj.c))
+    {
+        cout << "Incorrect input. Please try again.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
 }
 
-int move(ask_about_move_object& obj)
+///////////////////////////////////////////////// Validator
+vector<int> move(ask_about_move_object& obj)
 {
-    victor<int> directions;
+    vector<int> directions;
     if (obj.r != 0)
     {
         directions.push_back(1);
     }
-    else if (obj.r != SIZEX - 1)
+    if (obj.r != SIZEX - 1)
     {
         directions.push_back(2);
     }
-    else if (obj.c != 0)
+    if (obj.c != 0)
     {
         directions.push_back(3);
     }
-    else if (obj.c != SIZEY - 1)
+    if (obj.c != SIZEY - 1)
     {
         directions.push_back(4);
     }
@@ -384,16 +302,17 @@ int move(ask_about_move_object& obj)
     return directions;
 }
 
+///////////////////////////////////////////////// Validator
 int validate_user_input_move(char** board, ask_about_move_object& obj)
 {
-    victor<int> directions = move(obj);
+    vector<int> directions = move(obj);
     bool prov = false;
     bool prov_cout = false;
     int answer_user;
 
     while(!prov)
     {
-        answer_user = get_direction();     
+        answer_user = get_direction();
         for (int i = 0; i < directions.size(); i++)
         {
             if (answer_user == directions[i])
@@ -401,41 +320,44 @@ int validate_user_input_move(char** board, ask_about_move_object& obj)
                 prov = true;
             }
         }
+        system("cls");
         if (prov_cout)
         {
             cout << "invalid" << endl;
-            system("cls");
-            
         }
         print_board(board);
+        prov_cout = true;
     }
 
     return answer_user;
 }
 
+///////////////////////////////////////////////// Validator
 void validate_user_input_object(ask_about_move_object& obj, char** board)
 {
     bool prov = false;
     obj = { -1, -1 };
-    while (obj.r > SIZEX || obj.c > SIZEY || obj.r < 0 || obj.c < 0)
+    while (obj.r > SIZEX - 1 || obj.c > SIZEY - 1 || obj.r < 0 || obj.c < 0)
     {
         if (prov)
         {
             cout << "invalid" << endl;
             system("cls");
+            print_board(board);
         }
-        print_board(board);
         fill_object(obj);
         prov = true;
     }
 }
 
+///////////////////////////////////////////////// GameHandler
 int ask_user(ask_about_move_object& obj, int answer_user, char** board)
 {
     validate_user_input_object(obj, board);
     return validate_user_input_move(board, obj);
 }
 
+///////////////////////////////////////////////// GameHandler
 void make_replacement(ask_about_move_object obj, char** board, int new_y, int new_x)
 {
     char replacement_box;
@@ -444,6 +366,7 @@ void make_replacement(ask_about_move_object obj, char** board, int new_y, int ne
     board[new_x][new_y] = replacement_box;
 }
 
+///////////////////////////////////////////////// GameHandler
 void change_cells(int answer_user, ask_about_move_object obj, char** board)
 {
     int up = 1;
@@ -469,40 +392,32 @@ void change_cells(int answer_user, ask_about_move_object obj, char** board)
     }
 }
 
-void shuffle_board(char**& board, ask_about_move_object obj)
-{
-    for (int i = 0; i < obj.r; i++)
-    {
-        for (int j = 0; j < obj.c; j++) 
-        {
-            int random_row = rand() % obj.r;
-            int random_col = rand() % obj.c;
-            swap(board[i][j], board[random_row][random_col]);
-        }
-    }
-}
 
-void check_moves(char** board, ask_about_move_object obj)
+void break_match(char** board)
 {
-    for (int i = 0; i < SIZEX - 2; i++)
+    for (int i = 0; i < SIZEX; i++)
     {
-        for (int j = 0; j < SIZEY - 2; j++)
+        for (int j = 0; j < SIZEY; j++)
         {
-            if (board[i][j] == board[i][j + 1] && board[i][j] == board[i][j + 2])
+            if (j < SIZEY - 2 && board[i][j] == board[i][j + 1] && board[i][j] == board[i][j + 2])
             {
                 for (int k = 2; k <= 6; k++)
                 {
-                    if (board[i][j + 1] != k && k != board[i - 1][j + 1] && k != board[i + 1][j + 1])
+                    int i1 = i > 0 ? i - 1 : 0;
+                    int i2 = i < SIZEX - 1 ? i + 1 : SIZEX - 1;
+                    if (board[i][j + 1] != k && k != board[i1][j + 1] && k != board[i2][j + 1])
                     {
                         board[i][j + 1] = k;
                     }
                 }
             }
-            if (board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j])
+            if (i < SIZEX - 2 && board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j])
             {
                 for (int p = 2; p <= 6; p++)
                 {
-                    if (board[i + 1][j] != p && board[i + 1][j + 1] != p && board[i + 1][j - 1] != p)
+                    //int j1 = j > 0 ? j - 1 : 0;
+                    //int j2 = j < SIZEY - 1 ? j + 1 : SIZEY - 1;
+                    if (board[i + 1][j] != p && !((j < SIZEY - 1 && board[i + 1][j + 1] == p) || ( j > 0 && board[i + 1][j - 1] == p)))
                     {
                         board[i + 1][j] = p;
                     }
@@ -510,19 +425,9 @@ void check_moves(char** board, ask_about_move_object obj)
             }
         }
     }
-} 
-
-char* character_array()
-{
-    char simvol[5];
-    for (int i = 2, n = 0; i <= 6; ++i, ++n)
-    {
-        simvol[n] = (char)i;
-    }
-
-    return simvol;
 }
 
+///////////////////////////////////////////////// BoardHandler
 char** create_board()
 {
     char** board = new char* [SIZEX];
@@ -538,27 +443,32 @@ int main()
 {
     //srand(time(NULL));
     char** board = create_board();
-    char* simvol = character_array();
     int answer_user = 0;
     int combo_matches = 0;
     int all_matches = 0;
+    int number_of_moves = 0;
     ask_about_move_object obj;
+
     board = fill_board(board);
 
-    check_moves(board, obj);
+    break_match(board);
 
     bool game_over = false;
-
+    auto start = high_resolution_clock::now();
     while (!game_over)
     {
         print_board(board);
         answer_user = ask_user(obj, answer_user, board);
+        number_of_moves++;
         change_cells(answer_user, obj, board);
         system("cls");
-        all_matches = check_sequences_and_remove(board, obj, answer_user);
-        combo_matches = delete_and_count_combo(board, obj, all_matches);
-        calculate_points(combo_matches);
+        all_matches = check_sequences(board, obj, answer_user, all_matches); 
+        remove_items(board);
+        break_match(board);
+        game_over = check_win(all_matches);
     }
 
+    print_final_massage(start, number_of_moves);
+            
     return 0;
 }
