@@ -1,9 +1,4 @@
-#include <iostream>
-#include <iomanip>
 #include "BoardHandler.h"
-
-const int SIZEX = 5;
-const int SIZEY = 5;
 
 void BoardHandler::fill_board()
 {

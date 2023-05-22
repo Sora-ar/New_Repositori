@@ -127,7 +127,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BoardHandler.cpp" />
+    <ClCompile Include="Coordinates.cpp" />
     <ClCompile Include="Game1.cpp" />
+    <ClCompile Include="GameHandler.cpp" />
+    <ClCompile Include="MatchHandler.cpp" />
+    <ClCompile Include="UserCommunicator.cpp" />
+    <ClCompile Include="Validator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BoardHandler.h" />
+    <ClInclude Include="Coordinates.h" />
+    <ClInclude Include="GameHandler.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="MatchHandler.h" />
+    <ClInclude Include="UserCommunicator.h" />
+    <ClInclude Include="Validator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
