@@ -2,9 +2,7 @@
 
 bool GameHandler::check_win(int all_matches)
 {
-    if (all_matches == MAX_ITERATIONS)
-        return true;
-    return false;
+    return all_matches == MAX_ITERATIONS;
 }
 
 int GameHandler::ask_user(Coordinates* obj, int answer_user, BoardHandler* board)
@@ -17,31 +15,25 @@ int GameHandler::ask_user(Coordinates* obj, int answer_user, BoardHandler* board
 
 void GameHandler::make_replacement(Coordinates* obj, BoardHandler* bh, int new_y, int new_x)
 {
-    int x = obj->getRow();
-    int y = obj->getCol();
     char** board = bh->getBoard();
-    replacement_box = board[x][y];
-    board[x][y] = board[new_x][new_y];
-    board[new_x][new_y] = replacement_box;
-    // bh->setBoard(board);
+    swap(board[obj->getRow()][obj->getCol()], board[new_x][new_y]);
 }
 
 void GameHandler::change_cells(int answer_user, Coordinates* obj, BoardHandler* board)
 {
-    if (answer_user == up)
+    switch(answer_user)
     {
-        make_replacement(obj, board, obj->getCol(), obj->getRow() - 1);
-    }
-    else if (answer_user == down)
-    {
-        make_replacement(obj, board, obj->getCol(), obj->getRow() + 1);
-    }
-    else if (answer_user == left)
-    {
-        make_replacement(obj, board, obj->getCol() - 1, obj->getRow());
-    }
-    else if (answer_user == right)
-    {
-        make_replacement(obj, board, obj->getCol() + 1, obj->getRow());
+        case UP:
+            make_replacement(obj, board, obj->getCol(), obj->getRow() - 1);
+            break;
+        case DOWN:
+            make_replacement(obj, board, obj->getCol(), obj->getRow() + 1);
+            break;
+        case LEFT:
+            make_replacement(obj, board, obj->getCol() - 1, obj->getRow());
+            break;
+        case RIGHT:
+            make_replacement(obj, board, obj->getCol() + 1, obj->getRow());
+            break;
     }
 }

@@ -15,7 +15,7 @@ public:
 	void print_final_massage(const std::chrono::high_resolution_clock::time_point& start, int number_of_moves);
 	int get_direction(vector<int> directions);
 	void fill_object(Coordinates* obj);
-
+	int valid_input();
 
 };
 

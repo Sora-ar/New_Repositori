@@ -1,6 +1,7 @@
 #ifndef GAMEHANDLER_H
 #define GAMEHANDLER_H
 #include <iostream>
+#include <iomanip>
 #include "BoardHandler.h"
 #include "Coordinates.h"
 #include "Constants.h"
@@ -11,10 +12,6 @@ using namespace std;
 class GameHandler
 {
 private:
-	int up = 1;
-	int down = 2;
-	int left = 3;
-	int right = 4;
 	char replacement_box;
 
 public:

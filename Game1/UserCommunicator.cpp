@@ -14,45 +14,34 @@ void UserCommunicator::print_final_massage(const std::chrono::high_resolution_cl
     cout << "TIME: " << duration.count() / 60 << "min. " << duration.count() % 60 << "sec." << endl;
 }
 
-int UserCommunicator::get_direction(vector<int> directions)
+int UserCommunicator::valid_input()
 {
-    int  answer_user;
-    string DIRECTIONS[4] = { "up", "down", "left", "right" };
-    // make a loop
-    cout << "In which direction are we moving? Number:" << endl;
-    for (int i = 0; i < directions.size(); i++)
-    {
-        cout << directions[i] << ". " << DIRECTIONS[directions[i] - 1] << endl;
-    }
-    while (!(cin >> answer_user))
+    int item = 0;
+    while (!(cin >> item))
     {
         cout << "Incorrect input. Please try again.\n";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
-    return answer_user;
+    return item;
+}
+
+int UserCommunicator::get_direction(vector<int> directions)
+{
+    string DIRECTIONS[4] = { "up", "down", "left", "right" };
+    cout << "In which direction are we moving? Number:" << endl;
+    for (int i = 0; i < directions.size(); i++)
+        cout << directions[i] << ". " << DIRECTIONS[directions[i] - 1] << endl;
+
+    return valid_input();
 }
 
 void UserCommunicator::fill_object(Coordinates* obj)
 {
-    int tmp;
     cout << "The object we want to move" << endl;
     cout << "Horizontal number: ";
-    while (!(cin >> tmp))
-    {
-        cout << "Incorrect input. Please try again.\n";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-    obj->setRow(tmp);
+    obj->setRow(valid_input());
     cout << "Vertical number: ";
-    while (!(cin >> tmp))
-    {
-        cout << "Incorrect input. Please try again.\n";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-    obj->setCol(tmp);
+    obj->setCol(valid_input());
 }
-

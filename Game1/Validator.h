@@ -11,6 +11,9 @@ using namespace std;
 
 class Validator
 {
+private:
+	UserCommunicator ip = UserCommunicator();
+
 public:
 	vector<int> move(Coordinates* obj);
 	int validate_user_input_move(BoardHandler* bordH, Coordinates* obj);

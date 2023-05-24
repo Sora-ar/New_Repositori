@@ -20,12 +20,12 @@ int main()
     MatchHandler matchH = MatchHandler();
     UserCommunicator userPrint = UserCommunicator();
     Coordinates* obj = new Coordinates();
-    bordH->create_board();
     int answer_user = 0;
     int combo_matches = 0;
     int all_matches = 0;
     int number_of_moves = 0;
 
+    bordH->create_board();
     bordH->fill_board();
     bordH->getBoard();
     matchH.break_match(bordH);
@@ -39,6 +39,7 @@ int main()
         number_of_moves++;
         gameH.change_cells(answer_user, obj, bordH);
         system("cls");
+
         all_matches = matchH.check_sequences(bordH, obj, answer_user, all_matches); 
         matchH.remove_items(bordH);
         matchH.break_match(bordH);
