@@ -12,7 +12,7 @@ using namespace std;
 class Validator
 {
 private:
-	UserCommunicator ip = UserCommunicator();
+	UserCommunicator uc;
 
 public:
 	vector<int> move(Coordinates* obj);

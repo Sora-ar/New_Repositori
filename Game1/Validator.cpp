@@ -17,7 +17,6 @@ vector<int> Validator::move(Coordinates* obj)
 
 int Validator::validate_user_input_move(BoardHandler* bordH, Coordinates* obj)
 {
-
     vector<int> directions = move(obj);
     bool prov = false;
     bool prov_cout = false;
@@ -25,7 +24,7 @@ int Validator::validate_user_input_move(BoardHandler* bordH, Coordinates* obj)
 
     while (!prov)
     {
-        answer_user = ip.get_direction(directions);
+        answer_user = uc.get_direction(directions);
         for (int i = 0; i < directions.size(); i++)
             if (answer_user == directions[i])
                 prov = true;
@@ -57,7 +56,7 @@ void Validator::validate_user_input_object(Coordinates* obj, BoardHandler* bordH
             bordH->print_board();
         }
 
-        ip.fill_object(obj);
+        uc.fill_object(obj);
         prov = true;
     }
 }

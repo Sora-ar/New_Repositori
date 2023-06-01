@@ -63,6 +63,15 @@ void MatchHandler::check_sequences_horizontal(BoardHandler* bh, Coordinates* obj
 
     }
 
+    check_sequences_horizontal_to_vertical(bh, obj, all_matches);
+}
+
+void MatchHandler::check_sequences_horizontal_to_vertical(BoardHandler* bh, Coordinates* obj, int& all_matches)
+{
+    char** board = bh->getBoard();
+    int x = obj->getRow();
+    int y = obj->getCol();
+
     counter = 0;
     k = additional_row - 2 > 0 ? additional_row - 2 : 0;
     char current_symbol = board[k][y];
@@ -92,8 +101,8 @@ void MatchHandler::check_sequences_horizontal(BoardHandler* bh, Coordinates* obj
 void MatchHandler::check_sequences_vertical(BoardHandler* bh, Coordinates* obj, int direction, int& all_matches)
 {
     char** board = bh->getBoard();
-    int x = obj->getRow();
-    int y = obj->getCol();
+    int x = obj->r;
+    int y = obj->c;
 
     additional_row = direction == 3 ? y - 1 : y;
     for (int j = additional_row; j <= additional_row + 1; j++)
@@ -123,6 +132,15 @@ void MatchHandler::check_sequences_vertical(BoardHandler* bh, Coordinates* obj, 
 
     }
 
+    check_sequences_horizontal_to_vertical(bh, obj, all_matches);
+}
+
+void MatchHandler::check_sequences_vertical_to_horizontal(BoardHandler* bh, Coordinates* obj, int& all_matches)
+{
+    char** board = bh->getBoard();
+    int x = obj->getRow();
+    int y = obj->getCol();
+
     counter = 0;
     k = additional_row - 2 > 0 ? additional_row - 2 : 0;
     char current_symbol = board[x][k];
@@ -150,19 +168,31 @@ void MatchHandler::check_sequences_vertical(BoardHandler* bh, Coordinates* obj, 
 }
 
 
+
 int MatchHandler::check_sequences(BoardHandler* bh, Coordinates* obj, int direction, int all_matches)
 {
     if (direction == 1 || direction == 2)
-    {
         check_sequences_horizontal(bh, obj, direction, all_matches);
-    }
-
-    if (direction == 3 || direction == 4)
-    {
+    else
         check_sequences_vertical(bh, obj, direction, all_matches);
-    }
 
     return all_matches;
+}
+
+void MatchHandler::break_match_horizontal(BoardHandler*& bh, int x, int y, int z)
+{
+    char** board = bh->getBoard();
+
+    if (board[x][y + 1] != z && !((x < SIZEX - 1 && board[x + 1][y + 1] == z) || (x > 0 && board[x - 1][y + 1] == z)))
+        board[x][y + 1] = z;
+}
+
+void MatchHandler::break_match_vertical(BoardHandler*& bh, int x, int y, int z)
+{
+    char** board = bh->getBoard();
+
+    if (board[x + 1][y] != z && !((y < SIZEY - 1 && board[x + 1][y + 1] == z) || (y > 0 && board[x + 1][y - 1] == z)))
+        board[x + 1][y] = z;
 }
 
 void MatchHandler::break_match(BoardHandler* bh)
@@ -179,18 +209,15 @@ void MatchHandler::break_match(BoardHandler* bh)
                     //int i1 = i > 0 ? i - 1 : 0;
                     //int i2 = i < SIZEX - 1 ? i + 1 : SIZEX - 1;
                     //if (board[i][j + 1] != k && k != board[i1][j + 1] && k != board[i2][j + 1])
-                    if (board[i][j + 1] != k && !((i < SIZEX - 1 && board[i + 1][j + 1] == k) || (i > 0 && board[i - 1][j + 1] == k)))
-
-                        board[i][j + 1] = k;
-            }
+                    break_match_horizontal(bh, i, j, k);
+                }
             if (i < SIZEX - 2 && board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j])
             {
                 for (int p = 2; p <= 6; p++)
                 {
                     //int j1 = j > 0 ? j - 1 : 0;
                     //int j2 = j < SIZEY - 1 ? j + 1 : SIZEY - 1;
-                    if (board[i + 1][j] != p && !((j < SIZEY - 1 && board[i + 1][j + 1] == p) || (j > 0 && board[i + 1][j - 1] == p)))
-                        board[i + 1][j] = p;
+                    break_match_vertical(bh, i, j, p);
                 }
             }
         }

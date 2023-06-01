@@ -2,8 +2,8 @@
 #define USERCOMMUNICATOR_H
 #include <iostream>
 #include <chrono>
+#include <vector>
 #include "Coordinates.h"
-#include "Validator.h"
 #include "Constants.h"
 
 using namespace std;

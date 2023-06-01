@@ -40,7 +40,7 @@ int main()
         gameH.change_cells(answer_user, obj, bordH);
         system("cls");
 
-        all_matches = matchH.check_sequences(bordH, obj, answer_user, all_matches); 
+        all_matches = matchH.check_sequences(bordH, obj, answer_user, all_matches);
         matchH.remove_items(bordH);
         matchH.break_match(bordH);
         game_over = gameH.check_win(all_matches);
